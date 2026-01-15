@@ -1,0 +1,9 @@
+Django==5.2.5
+djangorestframework
+torch
+transformers
+huggingface_hub
+hf-transfer
+scipy
+pydub
+music21
