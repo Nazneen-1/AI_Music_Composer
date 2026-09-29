@@ -1,107 +1,122 @@
-# 🎵 AI Music Composer
+<div align="center">
 
-AI Music Composer is a Python and Django-based project that generates music using pre-trained deep learning models.  
-This repository contains the application code only; large AI model files are intentionally excluded due to GitHub size limits.
+  <a href="https://readme-typing-svg.demolab.com">
+    <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=32&pause=1000&color=8A2BE2&center=true&vcenter=true&width=600&height=70&lines=%F0%9F%8E%B5+AI+Music+Composer;Transform+Text+into+Melodies;Powered+by+PyTorch+%26+Django;Compose+the+Future+of+Sound" alt="AI Music Composer Typing SVG" />
+  </a>
+
+  <p align="center">
+    <b>An intelligent, deep-learning powered web application that generates original music compositions from text prompts and musical styles.</b>
+  </p>
+
+  <p align="center">
+    <a href="https://github.com/Nazneen-1/AI_Music_Composer/stargazers"><img src="https://img.shields.io/github/stars/Nazneen-1/AI_Music_Composer?style=for-the-badge&logo=github&color=7c3aed" alt="Stars"></a>
+    <a href="https://github.com/Nazneen-1/AI_Music_Composer/network/members"><img src="https://img.shields.io/github/forks/Nazneen-1/AI_Music_Composer?style=for-the-badge&logo=github&color=9333ea" alt="Forks"></a>
+    <a href="https://github.com/Nazneen-1/AI_Music_Composer/issues"><img src="https://img.shields.io/github/issues/Nazneen-1/AI_Music_Composer?style=for-the-badge&logo=github&color=c084fc" alt="Issues"></a>
+    <a href="https://github.com/Nazneen-1/AI_Music_Composer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/Nazneen-1/AI_Music_Composer?style=for-the-badge&color=a855f7" alt="License"></a>
+  </p>
+
+</div>
 
 ---
 
-## 🚀 Features
+<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,18,24,30&height=120&section=header&text=✨%20Key%20Features&fontSize=30&fontColor=ffffff&animation=twinkle" width="100%"/>
+</div>
 
-- AI-powered music generation
-- Uses pre-trained music generation models
-- Django backend
-- Clean project structure
-- Large files excluded using `.gitignore`
+- 🎼 **AI Music Generation** &mdash; Convert text prompts and selected styles into unique audio compositions using state-of-the-art transformers.
+- 🎨 **Style Selection** &mdash; Choose across diverse musical genres including Classical, Jazz, Lo-Fi, and Ambient.
+- 💾 **Personal Music Library** &mdash; Save, manage, download, and favorite your generated tracks from your dashboard.
+- ⚡ **Streamlined Architecture** &mdash; Django backend paired with PyTorch & HuggingFace inference pipeline.
 
 ---
 
 ## 🛠️ Tech Stack
 
-- Python
-- Django
-- PyTorch / Deep Learning Models
-- SQLite
-- Git & GitHub
+<div align="center">
+
+| Category | Technologies |
+| :--- | :--- |
+| **Backend** | ![Django](https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white) ![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white) ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white) |
+| **AI / Machine Learning** | ![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white) ![HuggingFace](https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black) |
+| **Audio Processing** | ![pydub](https://img.shields.io/badge/pydub-000000?style=for-the-badge&logo=audio&logoColor=white) ![SciPy](https://img.shields.io/badge/SciPy-8CAAE6?style=for-the-badge&logo=scipy&logoColor=white) ![music21](https://img.shields.io/badge/music21-4B0082?style=for-the-badge&logo=python&logoColor=white) |
+
+</div>
 
 ---
 
 ## 📂 Project Structure
 
-```
+```ascii
 ai_music_composer/
-├── composer/
-├── music_project/
-├── manage.py
-├── requirements.txt
-├── .gitignore
-└── README.md
+├── 🎵 composer/              # Main Django app (views, models, templates, music generator)
+│   ├── static/             # Frontend assets & styles
+│   ├── templates/          # HTML templates & user dashboards
+│   ├── models.py           # Composition & user models
+│   └── music_generator.py  # AI generation inference pipeline
+├── ⚙️ music_project/         # Django project core configuration
+├── 🧠 models/                # Local model weights directory (MusicGen / transformers)
+├── 📄 manage.py              # Django management CLI
+└── 📋 requirements.txt       # Project dependencies
 ```
 
 ---
 
 ## 🧠 Model Setup
 
-AI model files are not included in this repository.
+> [!NOTE]
+> Pre-trained AI model weights are excluded from Git due to file size limits.
 
-Create a folder named `models/` in the project root and place the downloaded model files inside it.
+Create a `models/` directory in the project root and download the target model weights (e.g., `facebook/musicgen-small`):
 
+```bash
+mkdir -p models/musicgen-small
 ```
-models/
-└── musicgen-small/
-```
+
 ---
 
-## ⚙️ Installation & Setup
+## 🚀 Quick Start Guide
 
-### Clone the repository
-```
+### 1️⃣ Clone Repository
+```bash
 git clone https://github.com/Nazneen-1/AI_Music_Composer.git
 cd AI_Music_Composer
 ```
 
-### Create and activate virtual environment
-```
-python -m venv Venv
-Venv\Scripts\activate
+### 2️⃣ Virtual Environment Setup
+```bash
+# On Linux / macOS
+python3 -m venv venv
+source venv/bin/activate
+
+# On Windows
+python -m venv venv
+venv\Scripts\activate
 ```
 
-### Install dependencies
-```
+### 3️⃣ Install Dependencies
+```bash
 pip install -r requirements.txt
 ```
 
-### Apply migrations
-```
+### 4️⃣ Database Migration & Launch
+```bash
 python manage.py migrate
-```
-
-### Run the server
-```
 python manage.py runserver
 ```
-Open:
-```
-http://127.0.0.1:8000/
-```
+
+🌐 Open your browser at **`http://127.0.0.1:8000/`** to start composing!
 
 ---
 
-## 🔐 Environment Variables
+<div align="center">
 
-Create a `.env` file if required.  
-`.env` files are ignored by Git.
+### 👩‍💻 Author
 
----
-
-## 📌 Notes
-
-- Models and media files are excluded from version control
-- Repository contains code only
-- Suitable for learning and experimentation
+**Nazneen Firdous**
+[![GitHub](https://img.shields.io/badge/GitHub-Nazneen--1-181717?style=for-the-badge&logo=github)](https://github.com/Nazneen-1)
 
 ---
 
-## 👩‍💻 Author
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,18,24,30&height=100&section=footer" width="100%"/>
 
-Nazneen Firdous  
-GitHub: https://github.com/Nazneen-1
+</div>
