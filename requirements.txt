@@ -7,3 +7,6 @@ hf-transfer
 scipy
 pydub
 music21
+whitenoise
+gunicorn
+python-dotenv

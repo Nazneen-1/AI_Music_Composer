@@ -1,100 +1,410 @@
 {% load static tz %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Music Composer</title>
+  <title>MUSEON Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="icon" type="image/x-icon" href="{% static './favicon.jpeg' %}">
+  <link rel="icon" type="image/jpeg" href="{% static 'favicon.jpeg' %}?v=2">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      padding: 0;
+      /* Soft pastel abstract gradient background */
+      background: 
+        radial-gradient(circle at 15% 50%, rgba(255, 200, 200, 1), transparent 50%),
+        radial-gradient(circle at 85% 30%, rgba(255, 235, 170, 1), transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(170, 235, 255, 1), transparent 50%);
+      background-color: #ffe6e6;
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #333;
+    }
+    
     .spinner-overlay {
       display: none;
       position: fixed; inset: 0;
-      background: rgba(0,0,0,0.6);
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       z-index: 9999;
       align-items: center; justify-content: center;
-      color: #fff;
+      flex-direction: column;
+      color: #ff5e8c;
+      font-weight: 600;
+      font-size: 1.2rem;
     }
-    .star { font-size: 20px; line-height: 1; text-decoration: none; }
-    .star.fav { color: gold; } .star.not-fav { color: #bbb; }
+    
+    /* Header */
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0;
+      margin-bottom: 1rem;
+    }
+    
+    .brand-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #ff5e8c;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin: 0;
+      text-shadow: 0 2px 10px rgba(255, 94, 140, 0.1);
+    }
+    
+    .btn-logout {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50px;
+      color: #ff5e8c;
+      font-weight: 600;
+      padding: 0.6rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+    .btn-logout:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 94, 140, 0.15);
+    }
+    
+    /* Glass Cards */
+    .glass-panel {
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+      margin-bottom: 2rem;
+    }
+    
+    /* Form Inputs */
+    .form-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 0.4rem;
+      padding-left: 0.5rem;
+    }
+    
+    .glass-input {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50px;
+      padding: 0.7rem 1rem 0.7rem 2.8rem;
+      font-size: 0.95rem;
+      color: #333;
+      width: 100%;
+      outline: none;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
+      transition: all 0.3s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    
+    .glass-input:focus {
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(255, 94, 140, 0.15);
+    }
+    
+    .input-wrapper { position: relative; }
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #ff5e8c;
+      pointer-events: none;
+    }
+    
+    .input-wrapper select {
+      background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+      background-repeat: no-repeat;
+      background-position: calc(100% - 1rem) center;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      align-items: center;
+    }
+    
+    .btn-generate {
+      background: linear-gradient(to right, #ff758c, #ffaa6b);
+      border: none;
+      border-radius: 50px;
+      color: white;
+      font-weight: 600;
+      padding: 0.7rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-generate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(255, 94, 140, 0.3);
+      color: white;
+    }
+    
+    .btn-filter {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50px;
+      color: #555;
+      font-weight: 600;
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .btn-filter.active, .btn-filter:hover {
+      background: #fff;
+      color: #ffaa6b;
+      box-shadow: 0 5px 15px rgba(255, 170, 107, 0.2);
+    }
+    
+    /* Compositions List */
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ff5e8c;
+      margin-bottom: 1.5rem;
+      margin-top: 2rem;
+    }
+    
+    .track-item {
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.2s;
+    }
+    .track-item:hover {
+      background: rgba(255, 255, 255, 0.8);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+    }
+    
+    .track-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    .bg-classical { background: linear-gradient(135deg, #ff7eb3, #ff758c); }
+    .bg-jazz { background: linear-gradient(135deg, #f6d365, #fda085); }
+    .bg-pop { background: linear-gradient(135deg, #84fab0, #8fd3f4); }
+    
+    .track-info { flex: 1; min-width: 0; }
+    .track-title {
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .track-style { color: #ffaa6b; font-weight: 600; font-size: 0.9rem; }
+    .track-date { color: #888; font-size: 0.8rem; margin: 0; }
+    
+    .track-actions {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    audio {
+      height: 36px;
+      max-width: 250px;
+      outline: none;
+    }
+    
+    .btn-star {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      padding: 0;
+      color: #ccc;
+      transition: color 0.3s;
+    }
+    .btn-star.fav { color: #ffca28; }
+    .btn-star:hover { color: #ffca28; transform: scale(1.1); }
+    
+    .btn-download {
+      background: #e0f7ea;
+      color: #2e7d32;
+      border: none;
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .btn-download:hover {
+      background: #c8e6c9;
+      color: #1b5e20;
+    }
+    
+    @media (max-width: 768px) {
+      .dashboard-header { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1rem 0; }
+      .brand-title { font-size: 1.6rem; }
+      .brand-title img { height: 40px !important; }
+      .btn-logout { width: 100%; justify-content: center; }
+      .glass-panel { padding: 1.5rem 1rem; }
+      .action-buttons { flex-wrap: wrap; }
+      .btn-generate { width: 100%; justify-content: center; }
+      .btn-filter { flex: 1; justify-content: center; }
+      .track-item { flex-direction: column; align-items: flex-start; }
+      .track-actions { margin-top: 1rem; width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+      audio { max-width: 100%; width: 100%; margin-bottom: 0.5rem; }
+      .section-title { font-size: 1.3rem; }
+    }
   </style>
 </head>
-<body class="bg-dark text-light">
+<body>
+
 <div class="spinner-overlay" id="spinner">
-  <div class="text-center">
-    <div class="spinner-border text-light" role="status" style="width:3rem;height:3rem;"></div>
-    <div class="mt-3">Generating… this may take a few seconds on CPU</div>
-  </div>
+  <div class="spinner-border mb-3" style="width: 3rem; height: 3rem; color: #ff5e8c;" role="status"></div>
+  <div>Generating magic... please wait!</div>
 </div>
 
-<div class="container py-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="m-0">🎵 AI Music Composer</h1>
-    <div><a href="{% url 'logout' %}" class="btn btn-outline-light btn-sm">Logout</a></div>
-  </div>
+<div class="container">
+  
+  <header class="dashboard-header">
+    <h1 class="brand-title">
+      <img src="{% static 'favicon.jpeg' %}?v=2" alt="MUSEON" style="height: 50px; border-radius: 12px;">
+      MUSEON
+    </h1>
+    <form action="{% url 'logout' %}" method="post" style="margin: 0;">
+      {% csrf_token %}
+      <button type="submit" class="btn-logout">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z"/><path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/></svg>
+        Logout
+      </button>
+    </form>
+  </header>
 
-  <form method="post" action="/generate/" class="mb-4" id="genForm">
-    {% csrf_token %}
-    <div class="row g-3">
-      <div class="col-md-3">
-        <label class="form-label">Style</label>
-        <select name="style" class="form-select">
-          <option value="Classical">Classical</option>
-          <option value="Jazz">Jazz</option>
-          <option value="Pop">Pop</option>
-        </select>
+  <div class="glass-panel">
+    <form method="post" action="/generate/" id="genForm">
+      {% csrf_token %}
+      <div class="row g-4">
+        <div class="col-md-3">
+          <label class="form-label">Style</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M9 13c0 1.105-1.12 2-2.5 2S4 14.105 4 13s1.12-2 2.5-2 2.5.895 2.5 2z"/><path fill-rule="evenodd" d="M9 3v10H8V3h1z"/><path d="M8 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 13 2.22V4L8 5V2.82z"/></svg>
+            <select name="style" class="glass-input">
+              <option value="Classical">Classical</option>
+              <option value="Jazz">Jazz</option>
+              <option value="Pop">Pop</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Duration</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/><path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/></svg>
+            <select name="duration" class="glass-input">
+              <option value="8">8 sec</option>
+              <option value="12" selected>12 sec</option>
+              <option value="15">15 sec</option>
+              <option value="20">20 sec</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Prompt (optional)</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"/></svg>
+            <input type="text" name="prompt" class="glass-input" placeholder="e.g., gentle strings, calm arpeggios">
+          </div>
+        </div>
       </div>
-      <div class="col-md-3">
-        <label class="form-label">Duration</label>
-        <select name="duration" class="form-select">
-          <option value="8">8 sec</option>
-          <option value="12" selected>12 sec</option>
-          <option value="15">15 sec</option>
-          <option value="20">20 sec</option>
-        </select>
+      
+      <div class="action-buttons">
+        <button type="submit" class="btn-generate" id="genBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M10.804 8 5 4.633v6.734L10.804 8zm.792-.696a.802.802 0 0 1 0 1.392l-6.363 3.692C4.713 12.69 4 12.345 4 11.692V4.308c0-.653.713-.998 1.233-.696l6.363 3.692z"/></svg>
+          Generate
+        </button>
+        <a href="{% url 'app' %}" class="btn-filter {% if not only %}active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M1 2.5A1.5 1.5 0 0 1 2.5 1h3A1.5 1.5 0 0 1 7 2.5v3A1.5 1.5 0 0 1 5.5 7h-3A1.5 1.5 0 0 1 1 5.5v-3zM2.5 2a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 1h3A1.5 1.5 0 0 1 15 2.5v3A1.5 1.5 0 0 1 13.5 7h-3A1.5 1.5 0 0 1 9 5.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zM1 10.5A1.5 1.5 0 0 1 2.5 9h3A1.5 1.5 0 0 1 7 10.5v3A1.5 1.5 0 0 1 5.5 15h-3A1.5 1.5 0 0 1 1 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3zm6.5.5A1.5 1.5 0 0 1 10.5 9h3a1.5 1.5 0 0 1 1.5 1.5v3a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 13.5v-3zm1.5-.5a.5.5 0 0 0-.5.5v3a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5v-3a.5.5 0 0 0-.5-.5h-3z"/></svg>
+          All
+        </a>
+        <a href="?only=favorites" class="btn-filter {% if only == 'favorites' %}active{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/></svg>
+          Favorites
+        </a>
       </div>
-      <div class="col-md-6">
-        <label class="form-label">Prompt (optional)</label>
-        <textarea name="prompt" class="form-control" rows="2" placeholder="e.g., gentle strings, calm arpeggios"></textarea>
+    </form>
+  </div>
+  
+  <h2 class="section-title">Your Compositions</h2>
+  
+  <div class="glass-panel" style="padding: 1rem 1.5rem;">
+    {% for comp in compositions %}
+    <div class="track-item">
+      <div class="d-flex align-items-center" style="min-width: 0;">
+        <div class="track-icon {% if comp.style == 'Classical' %}bg-classical{% elif comp.style == 'Jazz' %}bg-jazz{% else %}bg-pop{% endif %}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M9 13c0 1.105-1.12 2-2.5 2S4 14.105 4 13s1.12-2 2.5-2 2.5.895 2.5 2z"/><path fill-rule="evenodd" d="M9 3v10H8V3h1z"/><path d="M8 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 13 2.22V4L8 5V2.82z"/></svg>
+        </div>
+        <div class="track-info">
+          <h5 class="track-title">{{ comp.title }} <span class="track-style">({{ comp.style }})</span></h5>
+          <p class="track-date">{{ comp.created_at|localtime|date:"M d, Y H:i:s T" }}</p>
+        </div>
       </div>
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary" id="genBtn">Generate</button>
-        <a href="{% url 'home' %}" class="btn btn-outline-light ms-2 {% if not only %}disabled{% endif %}">All</a>
-        <a href="?only=favorites" class="btn btn-outline-warning ms-1 {% if only == 'favorites' %}active{% endif %}">⭐ Favorites</a>
+      
+      <div class="track-actions">
+        <audio controls preload="none">
+          <source src="{{ comp.file.url }}">
+        </audio>
+        
+        <form method="post" action="{% url 'toggle_favorite' comp.id %}" style="margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-star {% if comp.favorite %}fav{% endif %}">
+            {% if comp.favorite %}★{% else %}☆{% endif %}
+          </button>
+        </form>
+        
+        <a href="/download/{{ comp.id }}/" class="btn-download">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+          Download
+        </a>
       </div>
     </div>
-  </form>
-
-  <h2 class="mb-3">{% if only == 'favorites' %}Your Favorite Tracks{% else %}Your Compositions{% endif %}</h2>
-  <ul class="list-group">
-    {% for comp in compositions %}
-    <li class="list-group-item bg-secondary text-light">
-      <div class="d-flex align-items-center justify-content-between">
-        <div class="me-3">
-          <strong>{{ comp.title }}</strong> <span class="text-warning">({{ comp.style }})</span><br>
-          <small class="text-light-50">{{ comp.created_at|localtime|date:"M d, Y H:i:s T" }}</small>
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <audio controls preload="none" style="height: 36px; max-width: 280px;">
-            <source src="{{ comp.file.url }}">
-            Your browser doesn’t support audio playback.
-          </audio>
-
-          <form method="post" action="{% url 'toggle_favorite' comp.id %}">
-            {% csrf_token %}
-            <button class="btn btn-link star {% if comp.favorite %}fav{% else %}not-fav{% endif %}">
-              {% if comp.favorite %}⭐{% else %}☆{% endif %}
-            </button>
-          </form>
-
-          <a href="/download/{{ comp.id }}/" class="btn btn-success btn-sm">Download</a>
-        </div>
-      </div>
-    </li>
     {% empty %}
-    <li class="list-group-item bg-secondary text-light">No compositions yet — generate your first track!</li>
+    <div class="text-center py-4 text-muted">
+      <p>No compositions yet — generate your first beautiful track!</p>
+    </div>
     {% endfor %}
-  </ul>
+  </div>
 </div>
 
 <script>

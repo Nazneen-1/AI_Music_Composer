@@ -5,3 +5,4 @@ __pycache__/
 models/
 media/
 db.sqlite3
+staticfiles/

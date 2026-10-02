@@ -9,15 +9,22 @@ from .models import Composition
 from .music_generator import generate_music_file
 
 def signup(request):
+    if request.user.is_authenticated:
+        return redirect("app")
     if request.method == "POST":
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("home")
+            return redirect("app")
     else:
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
+
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect("app")
+    return render(request, "composer/landing.html")
 
 @login_required
 def index(request):
@@ -30,7 +37,7 @@ def index(request):
 @login_required
 def generate_music(request):
     if request.method != "POST":
-        return redirect("home")
+        return redirect("app")
 
     style = request.POST.get("style", "Classical")
     prompt = (request.POST.get("prompt") or "").strip()
@@ -48,7 +55,7 @@ def generate_music(request):
         style=style,
         file=rel_media_path,
     )
-    return redirect("home")
+    return redirect("app")
 
 @login_required
 def download_music(request, comp_id):
@@ -65,4 +72,4 @@ def toggle_favorite(request, comp_id):
 
     comp.favorite = not comp.favorite
     comp.save(update_fields=["favorite"])
-    return redirect(request.META.get("HTTP_REFERER") or "home")
+    return redirect(request.META.get("HTTP_REFERER") or "app")

@@ -1,0 +1,544 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MUSEON - Turn your ideas into music</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/jpeg" href="{% static 'favicon.jpeg' %}?v=2">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --cherry-pink: #FAA4B5;
+      --fawn: #F8B77C;
+      --maize: #FFF183;
+      --sky-blue: #70C1E1;
+      --olivine: #82BA88;
+      --dark-text: #2c1a3b;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: 'Outfit', sans-serif;
+      color: var(--dark-text);
+      overflow-x: hidden;
+      background: #ffe3e8; /* Fallback */
+    }
+    
+    /* 3D Canvas Background */
+    #canvas-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+    
+    /* UI Overlay */
+    .ui-layer {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      color: var(--dark-text);
+    }
+    .brand img { height: 35px; border-radius: 8px; }
+    
+    .nav-actions {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn-nav {
+      padding: 0.6rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .btn-login {
+      background: rgba(255, 255, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      color: var(--cherry-pink);
+      backdrop-filter: blur(10px);
+    }
+    .btn-login:hover { background: rgba(255, 255, 255, 0.8); transform: translateY(-2px); }
+    
+    .btn-signup {
+      background: linear-gradient(135deg, var(--cherry-pink), var(--fawn));
+      color: white;
+      box-shadow: 0 4px 15px rgba(250, 164, 181, 0.4);
+    }
+    .btn-signup:hover {
+      box-shadow: 0 8px 25px rgba(250, 164, 181, 0.6);
+      transform: translateY(-2px);
+    }
+    
+    /* Hero Section */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+      margin-top: -5vh;
+    }
+    
+    .tagline {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 600;
+      color: #a38ba8;
+      background: rgba(255,255,255,0.5);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      backdrop-filter: blur(5px);
+      margin-bottom: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+    
+    h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      color: var(--dark-text);
+      text-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    
+    .highlight-text {
+      background: linear-gradient(to right, var(--cherry-pink), var(--fawn), var(--maize));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+      position: relative;
+    }
+    .highlight-text::after {
+      content: '';
+      position: absolute;
+      bottom: 5px; left: 0; width: 100%; height: 8px;
+      background: var(--maize);
+      z-index: -1;
+      border-radius: 10px;
+      opacity: 0.6;
+    }
+    
+    .subtitle {
+      max-width: 500px;
+      font-size: 1.1rem;
+      color: #5d4a66;
+      line-height: 1.6;
+      margin-bottom: 2.5rem;
+    }
+    
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    
+    .btn-primary-cta {
+      background: linear-gradient(135deg, var(--cherry-pink), var(--fawn));
+      color: white;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 10px 25px rgba(250, 164, 181, 0.4);
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      border: 2px solid transparent;
+    }
+    .btn-primary-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 35px rgba(250, 164, 181, 0.6);
+    }
+    
+    .btn-secondary-cta {
+      background: rgba(255, 255, 255, 0.6);
+      color: #6d5b77;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-secondary-cta:hover {
+      background: rgba(255, 255, 255, 0.9);
+      transform: translateY(-3px);
+      color: var(--cherry-pink);
+    }
+    
+    /* Feature Strip */
+    .feature-strip {
+      background: rgba(255, 255, 255, 0.55);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 1.5rem 3rem;
+      display: flex;
+      gap: 3rem;
+      margin-top: 4rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+      transform: translateY(0);
+      transition: transform 0.4s ease;
+    }
+    .feature-strip:hover { transform: translateY(-5px); }
+    
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: default;
+      transition: transform 0.3s;
+    }
+    .feature-item:hover { transform: translateY(-3px) scale(1.05); }
+    
+    .feature-icon {
+      color: var(--cherry-pink);
+      transition: transform 0.3s;
+    }
+    .feature-item:hover .feature-icon { transform: scale(1.15) rotate(5deg); }
+    
+    .feature-text {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #4a3854;
+    }
+    
+    /* Animations */
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-1 { animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; opacity: 0; }
+    .anim-2 { animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.15s forwards; opacity: 0; }
+    .anim-3 { animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards; opacity: 0; }
+    .anim-4 { animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.45s forwards; opacity: 0; }
+    .anim-5 { animation: slideUpFade 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.6s forwards; opacity: 0; }
+    
+    .feature-border { border-left: 1px solid rgba(0,0,0,0.1); padding-left: 3rem; }
+    
+    @media (max-width: 768px) {
+      nav { padding: 1.5rem 1rem; flex-direction: column; gap: 1.5rem; }
+      h1 { font-size: 3rem; }
+      .subtitle { font-size: 1rem; margin-bottom: 2rem; }
+      .hero-actions { flex-direction: column; width: 100%; gap: 1rem; }
+      .btn-primary-cta, .btn-secondary-cta { width: 100%; text-align: center; justify-content: center; }
+      .feature-strip { flex-direction: column; gap: 2rem; justify-content: center; padding: 2rem 1.5rem; margin-top: 3rem; width: 100%; }
+      .feature-border { border-left: none; padding-left: 0; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 2rem; }
+      .brand { font-size: 1.3rem; }
+      .brand img { height: 30px; }
+      .hero { padding: 1rem; margin-top: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Interactive 3D Background -->
+  <div id="canvas-container"></div>
+  
+  <div class="ui-layer">
+    <nav>
+      <a href="{% url 'landing' %}" class="brand">
+        <img src="{% static 'favicon.jpeg' %}?v=2" alt="MUSEON Logo">
+        MUSEON
+      </a>
+      <div class="nav-actions">
+        <a href="{% url 'login' %}" class="btn-nav btn-login">Login</a>
+        <a href="{% url 'signup' %}" class="btn-nav btn-signup">Sign Up</a>
+      </div>
+    </nav>
+    
+    <main class="hero">
+      <div class="tagline anim-1">AI Music Studio</div>
+      
+      <h1 class="anim-2">
+        Turn your ideas<br>
+        <span class="highlight-text">into music</span>
+      </h1>
+      
+      <p class="subtitle anim-3">
+        Create original tracks in seconds with AI.<br>
+        From peaceful melodies to upbeat bangers —<br>
+        just describe the sound, and let MUSEON bring it to life.
+      </p>
+      
+      <div class="hero-actions anim-4">
+        <a href="{% url 'signup' %}" class="btn-primary-cta">Get Started Free &rarr;</a>
+      </div>
+      
+      <div class="feature-strip anim-5">
+        <div class="feature-item">
+          <svg class="feature-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+          <span class="feature-text">Multiple Styles</span>
+        </div>
+        <div class="feature-item feature-border">
+          <svg class="feature-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="feature-text">Customizable</span>
+        </div>
+        <div class="feature-item feature-border">
+          <svg class="feature-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+          <span class="feature-text">High Quality</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Three.js for immersive background -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Setup Scene
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0xffe3e8, 0.002);
+    
+    // Setup Camera
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 25;
+    
+    // Setup Renderer
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.getElementById('canvas-container').appendChild(renderer.domElement);
+    
+    // Palette
+    const colors = [0xFAA4B5, 0xF8B77C, 0xFFF183, 0x70C1E1, 0x82BA88];
+    
+    // Lighting (Soft, pastel)
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+    
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.4);
+    dirLight.position.set(10, 20, 10);
+    scene.add(dirLight);
+    
+    const hemiLight = new THREE.HemisphereLight(0xFAA4B5, 0x70C1E1, 0.6);
+    scene.add(hemiLight);
+
+    // Objects Array
+    const objects = [];
+    
+    // Material Generator (Glossy, soft)
+    const getMaterial = (colorIndex) => {
+      return new THREE.MeshStandardMaterial({
+        color: colors[colorIndex],
+        roughness: 0.1,
+        metalness: 0.1,
+        transparent: true,
+        opacity: 0.95
+      });
+    };
+
+    // Procedural Headphones
+    const hpGroup = new THREE.Group();
+    const hpColor = getMaterial(0); // Pink
+    const hpPadColor = getMaterial(4); // Olivine
+    
+    const bandGeo = new THREE.TorusGeometry(3.5, 0.5, 16, 64, Math.PI);
+    const band = new THREE.Mesh(bandGeo, hpColor);
+    hpGroup.add(band);
+    
+    const cupGeo = new THREE.CylinderGeometry(1.5, 1.5, 1, 32);
+    const cup1 = new THREE.Mesh(cupGeo, hpColor);
+    cup1.rotation.z = Math.PI / 2;
+    cup1.position.set(-3.7, 0, 0);
+    hpGroup.add(cup1);
+    
+    const cup2 = new THREE.Mesh(cupGeo, hpColor);
+    cup2.rotation.z = Math.PI / 2;
+    cup2.position.set(3.7, 0, 0);
+    hpGroup.add(cup2);
+    
+    const padGeo = new THREE.TorusGeometry(1.2, 0.5, 16, 32);
+    const pad1 = new THREE.Mesh(padGeo, hpPadColor);
+    pad1.rotation.y = Math.PI / 2;
+    pad1.position.set(-3.1, 0, 0);
+    hpGroup.add(pad1);
+    
+    const pad2 = new THREE.Mesh(padGeo, hpPadColor);
+    pad2.rotation.y = Math.PI / 2;
+    pad2.position.set(3.1, 0, 0);
+    hpGroup.add(pad2);
+
+    hpGroup.position.set(-12, 4, -8);
+    hpGroup.rotation.y = Math.PI / 4;
+    scene.add(hpGroup);
+    objects.push({ mesh: hpGroup, rx: 0.005, ry: 0.003, rz: 0.002, floatSpeed: 0.015, floatAmp: 0.8, baseY: 4, depth: 0.3 });
+
+    // Procedural Music Notes
+    function createNote(colorMat, x, y, z, scale) {
+      const noteGroup = new THREE.Group();
+      const headGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.6, 32);
+      const head = new THREE.Mesh(headGeo, colorMat);
+      head.rotation.x = Math.PI / 2;
+      head.rotation.z = Math.PI / 6;
+      head.scale.set(1, 1.3, 1);
+      noteGroup.add(head);
+      
+      const stemGeo = new THREE.CylinderGeometry(0.2, 0.2, 5, 16);
+      const stem = new THREE.Mesh(stemGeo, colorMat);
+      stem.position.set(1.1, 2.5, 0);
+      noteGroup.add(stem);
+      
+      const flagShape = new THREE.Shape();
+      flagShape.moveTo(0, 0);
+      flagShape.quadraticCurveTo(2, -0.5, 2.5, -2);
+      flagShape.quadraticCurveTo(2, -1, 0, -1.5);
+      flagShape.lineTo(0, 0);
+      const extrudeSettings = { depth: 0.2, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 0.05, bevelThickness: 0.05 };
+      const flagGeo = new THREE.ExtrudeGeometry(flagShape, extrudeSettings);
+      const flag = new THREE.Mesh(flagGeo, colorMat);
+      flag.position.set(1.1, 4.8, -0.1);
+      noteGroup.add(flag);
+      
+      noteGroup.position.set(x, y, z);
+      noteGroup.scale.set(scale, scale, scale);
+      scene.add(noteGroup);
+      objects.push({ mesh: noteGroup, rx: Math.random() * 0.01, ry: Math.random() * 0.02, rz: 0, floatSpeed: Math.random() * 0.02 + 0.01, floatAmp: 1.5, baseY: y, depth: 0.4 });
+    }
+    
+    createNote(getMaterial(2), 10, -2, -5, 0.8); // Maize Note
+    createNote(getMaterial(3), -8, -6, -10, 0.6); // Blue Note
+    createNote(getMaterial(1), 14, 8, -15, 1); // Fawn Note
+
+    // Scatter 20 more random music notes for a rich background
+    for(let i=0; i<20; i++) {
+      const colorIdx = Math.floor(Math.random() * colors.length);
+      const px = (Math.random() - 0.5) * 60;
+      const py = (Math.random() - 0.5) * 40;
+      const pz = (Math.random() - 0.5) * 30 - 10;
+      const scale = Math.random() * 0.5 + 0.2; // smaller background notes
+      createNote(getMaterial(colorIdx), px, py, pz, scale);
+    }
+
+    // Function to create a Vinyl
+    function createVinyl(colorMat, x, y, z, scale, rotX) {
+      const vinylGroup = new THREE.Group();
+      const diskGeo = new THREE.CylinderGeometry(6, 6, 0.2, 64);
+      const diskMat = getMaterial(0);
+      const disk = new THREE.Mesh(diskGeo, diskMat);
+      vinylGroup.add(disk);
+      
+      const labelGeo = new THREE.CylinderGeometry(2, 2, 0.3, 32);
+      const label = new THREE.Mesh(labelGeo, colorMat);
+      vinylGroup.add(label);
+      
+      vinylGroup.position.set(x, y, z);
+      vinylGroup.rotation.x = rotX;
+      vinylGroup.scale.set(scale, scale, scale);
+      scene.add(vinylGroup);
+      objects.push({ mesh: vinylGroup, rx: Math.random() * 0.02, ry: Math.random() * 0.02, rz: Math.random() * 0.01, floatSpeed: Math.random() * 0.02 + 0.01, floatAmp: Math.random() * 1.5 + 0.5, baseY: y, depth: 0.5 });
+    }
+
+    // Main Hero Vinyl
+    createVinyl(getMaterial(2), 12, -2, -8, 1, Math.PI / 3);
+
+    // Scatter a few smaller vinyls in the background
+    for(let i=0; i<5; i++) {
+      const colorIdx = Math.floor(Math.random() * colors.length);
+      const px = (Math.random() - 0.5) * 70;
+      const py = (Math.random() - 0.5) * 40;
+      const pz = (Math.random() - 0.5) * 25 - 15;
+      const scale = Math.random() * 0.3 + 0.15;
+      const rotX = Math.random() * Math.PI;
+      createVinyl(getMaterial(colorIdx), px, py, pz, scale, rotX);
+    }
+
+    // Interaction Variables
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    const windowHalfX = window.innerWidth / 2;
+    const windowHalfY = window.innerHeight / 2;
+
+    document.addEventListener('mousemove', (event) => {
+      mouseX = (event.clientX - windowHalfX);
+      mouseY = (event.clientY - windowHalfY);
+    });
+
+    // Animation Loop
+    const clock = new THREE.Clock();
+    
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
+      
+      // Smooth mouse interpolation (lerp)
+      targetX = targetX + (mouseX - targetX) * 0.05;
+      targetY = targetY + (mouseY - targetY) * 0.05;
+      
+      // Camera parallax
+      camera.position.x += (targetX * 0.005 - camera.position.x) * 0.05;
+      camera.position.y += (-targetY * 0.005 - camera.position.y) * 0.05;
+      camera.lookAt(scene.position);
+
+      // Animate Objects
+      objects.forEach((obj) => {
+        // Rotation
+        obj.mesh.rotation.x += obj.rx;
+        obj.mesh.rotation.y += obj.ry;
+        obj.mesh.rotation.z += obj.rz;
+        
+        // Idle Floating
+        obj.mesh.position.y = obj.baseY + Math.sin(time * obj.floatSpeed * 50) * obj.floatAmp;
+        
+        // Mouse reactivity (depth-based parallax)
+        obj.mesh.position.x += (targetX * 0.002 * obj.depth);
+      });
+      
+      // Hero object specific color morphing simulation via rotation and lighting
+      if (hpGroup) hpGroup.rotation.y += (targetX * 0.0001);
+
+      renderer.render(scene, camera);
+    }
+    
+    animate();
+
+    // Resize Handler
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
